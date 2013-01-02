@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.ser.FilterProvider;
 import com.fasterxml.jackson.databind.ser.SerializerFactory;
 import com.fasterxml.jackson.databind.type.TypeFactory;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
+import com.fasterxml.jackson.datatype.joda.JodaModule;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -81,7 +82,7 @@ public class ObjectMapperFactory {
         this.factoryFeatures = Maps.newHashMap();
         this.visibilityRules = Maps.newLinkedHashMap();
 
-        this.propertyNamingStrategy = AnnotationSensitivePropertyNamingStrategy.INSTANCE;
+        this.propertyNamingStrategy = new AnnotationSensitivePropertyNamingStrategy();
 
         enable(JsonParser.Feature.ALLOW_COMMENTS);
         disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
@@ -89,6 +90,7 @@ public class ObjectMapperFactory {
         registerModule(new GuavaModule());
         registerModule(new LogbackModule());
         registerModule(new GuavaExtrasModule());
+        registerModule(new JodaModule());
     }
 
     public AnnotationIntrospector getAnnotationIntrospector() {
@@ -506,15 +508,15 @@ public class ObjectMapperFactory {
         }
 
         for (Map.Entry<JsonGenerator.Feature, Boolean> entry : generatorFeatures.entrySet()) {
-            mapper.getJsonFactory().configure(entry.getKey(), entry.getValue());
+            mapper.getFactory().configure(entry.getKey(), entry.getValue());
         }
 
         for (Map.Entry<JsonParser.Feature, Boolean> entry : parserFeatures.entrySet()) {
-            mapper.getJsonFactory().configure(entry.getKey(), entry.getValue());
+            mapper.getFactory().configure(entry.getKey(), entry.getValue());
         }
 
         for (Map.Entry<JsonFactory.Feature, Boolean> entry : factoryFeatures.entrySet()) {
-            mapper.getJsonFactory().configure(entry.getKey(), entry.getValue());
+            mapper.getFactory().configure(entry.getKey(), entry.getValue());
         }
 
         if (annotationIntrospector != null) {
